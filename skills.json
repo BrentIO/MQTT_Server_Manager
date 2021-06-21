@@ -1,0 +1,13 @@
+[
+    {
+        "enabled": true,
+        "name": "getDiskSpace",
+        "description": "Retrives the disk space available on the device",
+        "requestTopic": "%clientTopic%/%hostname%/diskspace/get",
+        "responseTopic": "%clientTopic%/%hostname%/diskspace",
+        "requiredPackages": [
+            "psutil",
+            "platform"
+        ]
+    }
+]

@@ -1,0 +1,11 @@
+{
+    "logLevel" : "info",
+    "mqtt": {
+        "serverName": "my.mqtt.com",
+        "port": 1883,
+        "username": "aUsername",
+        "password": "myClearTextPassword",
+        "clientTopic": "topic/to/receive/commands",
+        "controlTopic": "topic/to/send/responses"
+    }
+}
