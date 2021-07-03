@@ -193,7 +193,7 @@ def init():
 
         applicationName = "MQTT Server Manager"
 
-        filePath = os.path.dirname(__file__) + "/"
+        filePath = os.getcwd() + "/"
 
         #Setup the logger, 10MB maximum log size
         logger = logging.getLogger(applicationName)
