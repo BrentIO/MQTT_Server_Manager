@@ -3,11 +3,24 @@
         "enabled": true,
         "name": "systemInfo",
         "description": "Retrives system information the device such as OS version, disks, processor, and utilization",
-        "requestTopic": "%clientTopic%/%hostname%/systeminfo/get",
+        "requestTopic": [
+            "%clientTopic%/%hostname%/systeminfo/get"
+        ],
         "responseTopic": "%clientTopic%/%hostname%/systeminfo",
         "requiredPackages": [
             "psutil",
             "platform"
         ]
+    },
+    {
+        "enabled": true,
+        "name": "rpiDisplayPower",
+        "description": "Retrives and sets the display power on a Raspberry Pi",
+        "requestTopic": [
+            "%clientTopic%/%hostname%/rpidisplaypower/get",
+            "%clientTopic%/%hostname%/rpidisplaypower/set"
+        ],
+        "responseTopic": "%clientTopic%/%hostname%/rpidisplaypower",
+        "requiredPackages": []
     }
 ]
