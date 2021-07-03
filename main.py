@@ -3,7 +3,7 @@
 import logging
 import importlib
 import json
-import paho.mqtt.client as mqtt
+#import paho.mqtt.client
 import logging.handlers as handlers
 from pkgutil import iter_modules
 import os
@@ -33,16 +33,21 @@ def on_message(client, userdata, msg):
     # Handles MQTT Message Receipt
     #########################################################
 
+    publishOnline()
+
     #Find the handler
     for skill in skills['loaded']:
-        if skill['requestTopic'] == msg.topic:
-            logger.info("Received message on " + msg.topic + " will be handled by " + skill['name'])
 
-            targetModule = importlib.import_module(skill['name'])
-            returnValue = targetModule.execute(msg.payload.decode('UTF-8'))
+        for requestTopic in skill['requestTopics']:
 
-            mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
-            logger.info("Sent message on " + skill['responseTopic'])
+            if requestTopic == msg.topic:
+                logger.info("Received message on " + msg.topic + " will be handled by " + skill['name'])
+
+                targetModule = importlib.import_module(skill['name'])
+                returnValue = targetModule.execute(msg.topic, msg.payload.decode('UTF-8'))
+
+                mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
+                logger.info("Sent message on " + skill['responseTopic'])
 
 def setLogLevel(logLevel):
 
@@ -127,9 +132,15 @@ def setup():
                 logger.critical(skill["name"] + " does not contain element \"requestTopic\".  The skill will not be loaded.")
                 continue
 
-            if len(skill["requestTopic"].strip()) == 0 or skill["requestTopic"].strip() == "*":
-                logger.critical(skill["name"] + " does not have a valid requestTopic.  The skill will not be loaded.")
+            if len(skill["requestTopic"]) == 0:
+                logger.critical(skill["name"] + " does not have a valid requestTopic list.  The skill will not be loaded.")
                 continue
+
+            for requestTopic in skill["requestTopic"]:
+
+                if len(requestTopic.strip()) == 0 or requestTopic.strip() == "#":
+                    logger.critical(skill["name"] + " does not have a valid requestTopic.  The skill will not be loaded.")
+                    continue
 
 
             if "responseTopic" not in skill:
@@ -143,7 +154,10 @@ def setup():
             tmpSkill = {}
 
             tmpSkill['name'] = skill["name"]
-            tmpSkill['requestTopic'] = replaceMQTTTopicTokens(skill["requestTopic"])
+            tmpSkill['requestTopics'] = []
+
+            for requestTopic in skill["requestTopic"]:
+                tmpSkill['requestTopics'].append(replaceMQTTTopicTokens(requestTopic))
             tmpSkill['responseTopic'] = replaceMQTTTopicTokens(skill["responseTopic"])
 
             #Register the skill
@@ -166,13 +180,18 @@ def main():
         #Create the MQTT credentials from the settings file
         mqttClient.username_pw_set(settings["mqtt"]["username"], password=settings["mqtt"]["password"])
 
+        #Set the last will and testament
+        mqttClient.will_set(replaceMQTTTopicTokens(settings["mqtt"]["clientTopic"] + "/%hostname%/status"), payload="OFFLINE", qos=0, retain=False)
+
         #Connect to MQTT
         mqttClient.connect(settings["mqtt"]["serverName"], port=settings["mqtt"]["port"], keepalive=60)
 
         #Subscribe to the loaded topics
         for skill in skills['loaded']:
-            mqttClient.subscribe(skill["requestTopic"])
-            logger.info("Subscribed to request topic " + skill["requestTopic"])
+
+            for requestTopic in skill["requestTopics"]:
+                mqttClient.subscribe(requestTopic)
+                logger.info("Subscribed to request topic " + requestTopic)
 
         #Listen
         mqttClient.loop_forever()
@@ -204,12 +223,12 @@ def init():
     global mqttClient
 
     try:
-
+            
         skills = {}
 
         applicationName = "MQTT Server Manager"
 
-        filePath = os.getcwd() + "/"
+        filePath = os.path.dirname(os.path.realpath(__file__)) + "/"
 
         #Setup the logger, 10MB maximum log size
         logger = logging.getLogger(applicationName)
@@ -220,8 +239,13 @@ def init():
 
         logger.info(applicationName + " application started.")
 
+        if module_exists("paho") == False:
+            raise Exception("Paho-MQTT is not installed.  Run pip3 install paho-mqtt")
+
+        import paho.mqtt.client      
+
         #Create MQTT Client
-        mqttClient = mqtt.Client()
+        mqttClient = paho.mqtt.client.Client()
 
         #Make sure the settings file exists
         if os.path.exists(filePath + 'settings.json') == False:
