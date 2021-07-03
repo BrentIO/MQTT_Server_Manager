@@ -170,6 +170,15 @@ def main():
         #Listen
         mqttClient.loop_forever()
 
+    except socket.gaierror as ex:
+
+        if ex.errno == 8:
+            logger.critical("Unable to resolve hostname " + settings["mqtt"]["serverName"])
+        else:
+            logger.critical(ex)
+        print("Check logs.")
+        quit()
+
     except KeyboardInterrupt:
         print("\n")
         quit()
