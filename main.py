@@ -150,23 +150,33 @@ def setup():
 
 def main():
 
-    #Setup the handlers for connection and messages
-    mqttClient.on_connect = on_connect
-    mqttClient.on_message = on_message
+    try:
 
-    #Create the MQTT credentials from the settings file
-    mqttClient.username_pw_set(settings["mqtt"]["username"], password=settings["mqtt"]["password"])
+        #Setup the handlers for connection and messages
+        mqttClient.on_connect = on_connect
+        mqttClient.on_message = on_message
 
-    #Connect to MQTT
-    mqttClient.connect(settings["mqtt"]["serverName"], port=settings["mqtt"]["port"], keepalive=60)
+        #Create the MQTT credentials from the settings file
+        mqttClient.username_pw_set(settings["mqtt"]["username"], password=settings["mqtt"]["password"])
 
-    #Subscribe to the loaded topics
-    for skill in skills['loaded']:
-        mqttClient.subscribe(skill["requestTopic"])
-        logger.info("Subscribed to request topic " + skill["requestTopic"])
+        #Connect to MQTT
+        mqttClient.connect(settings["mqtt"]["serverName"], port=settings["mqtt"]["port"], keepalive=60)
 
-    #Listen
-    mqttClient.loop_forever()
+        #Subscribe to the loaded topics
+        for skill in skills['loaded']:
+            mqttClient.subscribe(skill["requestTopic"])
+            logger.info("Subscribed to request topic " + skill["requestTopic"])
+
+        #Listen
+        mqttClient.loop_forever()
+
+    except KeyboardInterrupt:
+        print("\n")
+        quit()
+
+    except Exception as ex:
+        logger.critical(ex)
+        print("Check logs.")
 
 def init():
 
@@ -177,57 +187,58 @@ def init():
     global skills
     global mqttClient
 
-    #try:
+    try:
 
-    skills = {}
+        skills = {}
 
-    applicationName = "MQTT Server Manager"
+        applicationName = "MQTT Server Manager"
 
-    filePath = os.path.dirname(__file__) + "/"
+        filePath = os.path.dirname(__file__) + "/"
 
-    #Setup the logger, 10MB maximum log size
-    logger = logging.getLogger(applicationName)
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
-    logHandler = handlers.RotatingFileHandler(filePath + 'events.log', maxBytes=10485760, backupCount=1)
-    logHandler.setFormatter(formatter)
-    logger.addHandler(logHandler)
+        #Setup the logger, 10MB maximum log size
+        logger = logging.getLogger(applicationName)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
+        logHandler = handlers.RotatingFileHandler(filePath + 'events.log', maxBytes=10485760, backupCount=1)
+        logHandler.setFormatter(formatter)
+        logger.addHandler(logHandler)
 
-    logger.info(applicationName + " application started.")
+        logger.info(applicationName + " application started.")
 
-    #Create MQTT Client
-    mqttClient = mqtt.Client()
+        #Create MQTT Client
+        mqttClient = mqtt.Client()
 
-    #Make sure the settings file exists
-    if os.path.exists(filePath + 'settings.json') == False:
-        raise Exception("Settings file does not exist.  Expected file " + filePath + 'settings.json')
+        #Make sure the settings file exists
+        if os.path.exists(filePath + 'settings.json') == False:
+            raise Exception("Settings file does not exist.  Expected file " + filePath + 'settings.json')
 
-    #Get the settings file
-    if os.path.exists(filePath + 'settings.json.private') == True:
-        with open(filePath + 'settings.json.private') as settingsFile:
-            settings = json.load(settingsFile)
-    else:   
-        with open(filePath + 'settings.json') as settingsFile:
-            settings = json.load(settingsFile)
+        #Get the settings file
+        if os.path.exists(filePath + 'settings.json.private') == True:
+            with open(filePath + 'settings.json.private') as settingsFile:
+                settings = json.load(settingsFile)
+        else:   
+            with open(filePath + 'settings.json') as settingsFile:
+                settings = json.load(settingsFile)
 
-    #Make sure the skills file exists
-    if os.path.exists(filePath + 'skills.json') == False:
-        raise Exception("Skills file does not exist.  Expected file " + filePath + 'skills.json')
+        #Make sure the skills file exists
+        if os.path.exists(filePath + 'skills.json') == False:
+            raise Exception("Skills file does not exist.  Expected file " + filePath + 'skills.json')
 
-    #Get the settings file
-    with open(filePath + 'skills.json') as skillsFile:
-        skills['defined'] = json.load(skillsFile)
+        #Get the settings file
+        with open(filePath + 'skills.json') as skillsFile:
+            skills['defined'] = json.load(skillsFile)
 
-    #Create the loaded skills attribute
-    skills['loaded'] = []
+        #Create the loaded skills attribute
+        skills['loaded'] = []
 
-    #except Exception as ex:
-     #   logger.critical(ex)
-     #   print("Check logs.")
-    #    quit()
+    except Exception as ex:
+        logger.critical(ex)
+        print("Check logs.")
+        quit()
 
 def replaceMQTTTopicTokens(topic):
 
-    topic = topic.replace("%clientTopic%", settings["mqtt"]["clientTopic"])
+    topic = topic.lower()
+    topic = topic.replace("%clienttopic%", settings["mqtt"]["clientTopic"])
     topic = topic.replace("%hostname%", socket.gethostname().split(".")[0].lower())
 
     return topic
