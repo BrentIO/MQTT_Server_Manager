@@ -279,6 +279,7 @@ def replaceMQTTTopicTokens(topic):
 
     topic = topic.lower()
     topic = topic.replace("%clienttopic%", settings["mqtt"]["clientTopic"])
+    topic = topic.replace("%controltopic%", settings["mqtt"]["controlTopic"])
     topic = topic.replace("%hostname%", socket.gethostname().split(".")[0].lower())
 
     return topic
