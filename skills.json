@@ -17,10 +17,10 @@
         "name": "rpiDisplayPower",
         "description": "Retrives and sets the display power on a Raspberry Pi",
         "requestTopic": [
-            "%clientTopic%/%hostname%/rpidisplaypower/get",
+            "%controlTopic%/%hostname%/rpidisplaypower/get",
             "%controlTopic%/%hostname%/rpidisplaypower/set"
         ],
-        "responseTopic": "%clientTopic%/%hostname%/rpidisplaypower",
+        "responseTopic": "%controlTopic%/%hostname%/rpidisplaypower",
         "requiredPackages": []
     }
 ]
