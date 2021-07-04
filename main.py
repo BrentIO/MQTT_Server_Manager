@@ -43,11 +43,24 @@ def on_message(client, userdata, msg):
             if requestTopic == msg.topic:
                 logger.info("Received message on " + msg.topic + " will be handled by " + skill['name'])
 
-                targetModule = importlib.import_module(skill['name'])
-                returnValue = targetModule.execute(msg.topic, msg.payload.decode('UTF-8'))
+                try:
 
-                mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
-                logger.info("Sent message on " + skill['responseTopic'])
+                    targetModule = importlib.import_module(skill['name'])
+                    returnValue = targetModule.execute(msg.topic, msg.payload.decode('UTF-8'))
+
+                    mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
+                    logger.info("Sent message on " + skill['responseTopic'])
+
+                except Exception as ex:
+                    logger.error("Skill \"" + skill['name'] + "\" threw an exception: \"" + str(ex) + "\"")
+
+                    returnValue = {}
+
+                    returnValue['error'] = "EXCEPTION_OCCURRED"
+
+                    #Send the response to the client
+                    mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
+                    
 
 def setLogLevel(logLevel):
 
