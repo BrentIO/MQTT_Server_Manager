@@ -14,14 +14,17 @@ def execute(topic, payload):
 
     if topic.endswith("/set"):
 
+        returnValue['display'] = "INVALID_REQUEST"
+
         payload = payload.strip().upper()
 
-
         if payload == "ON":
-            return setDisplayPower("1")
+            returnValue['display'] = setDisplayPower("1")
+            return returnValue
 
         if payload == "OFF":
-            return setDisplayPower("0")
+            returnValue['display'] = setDisplayPower("0")
+            return returnValue
 
         returnValue['display'] = "INVALID_REQUEST"
     
