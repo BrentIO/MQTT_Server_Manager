@@ -22,5 +22,25 @@
         ],
         "responseTopic": "%controlTopic%/%hostname%/rpidisplaypower",
         "requiredPackages": []
+    },
+    {
+        "enabled": true,
+        "name": "restart",
+        "description": "Restarts the operating system",
+        "requestTopic": [
+            "%controlTopic%/%hostname%/restart/set"
+        ],
+        "responseTopic": "%controlTopic%/%hostname%/restart",
+        "requiredPackages": []
+    },
+    {
+        "enabled": true,
+        "name": "shutdown",
+        "description": "Shuts down the operating system",
+        "requestTopic": [
+            "%controlTopic%/%hostname%/shutdown/set"
+        ],
+        "responseTopic": "%controlTopic%/%hostname%/shutdown",
+        "requiredPackages": []
     }
 ]
