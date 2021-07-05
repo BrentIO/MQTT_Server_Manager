@@ -7,7 +7,7 @@ def execute(topic, payload):
 
     returnValue = {}
 
-    result = subprocess.run(['shutdown', stderr=subprocess.PIPE)
+    result = subprocess.run(['shutdown', '-h', 'now', 'Shutdown requested via MQTT Server Manager'], stderr=subprocess.PIPE)
 
     if result.returncode != 0:
 
