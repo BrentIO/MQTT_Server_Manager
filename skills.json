@@ -42,5 +42,15 @@
         ],
         "responseTopic": "%controlTopic%/%hostname%/shutdown",
         "requiredPackages": []
+    },
+    {
+        "enabled": true,
+        "name": "p5AutoUpdate",
+        "description": "Executes the P5Software AutoUpdate script",
+        "requestTopic": [
+            "%controlTopic%/%hostname%/p5AutoUpdate/set"
+        ],
+        "responseTopic": "%controlTopic%/%hostname%/p5AutoUpdate",
+        "requiredPackages": []
     }
 ]
