@@ -48,15 +48,33 @@ def on_message(client, userdata, msg):
                     targetModule = importlib.import_module(skill['name'])
                     returnValue = targetModule.execute(msg.topic, msg.payload.decode('UTF-8'))
 
-                    mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
-                    logger.info("Sent message on " + skill['responseTopic'])
+                    if isinstance(returnValue, list):
+                        
+                        #Send each requested message
+                        for message in returnValue:
+                            
+                            #Send a single message
+                            mqttClient.publish(skill['responseTopic'], json.dumps(message))
+                            logger.info("Sent message on " + skill['responseTopic'])
+
+                    else:
+                        if isinstance(returnValue, dict):
+
+                            #Send a single message
+                            mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
+                            logger.info("Sent message on " + skill['responseTopic'])
+                    
 
                 except Exception as ex:
                     logger.error("Skill \"" + skill['name'] + "\" threw an exception: \"" + str(ex) + "\"")
 
                     returnValue = {}
 
-                    returnValue['error'] = "EXCEPTION_OCCURRED"
+                    if str(ex) != "":
+
+                        returnValue['error'] = str(ex)
+                    else:
+                        returnValue['error'] = "EXCEPTION_OCCURRED"
 
                     #Send the response to the client
                     mqttClient.publish(skill['responseTopic'], json.dumps(returnValue))
