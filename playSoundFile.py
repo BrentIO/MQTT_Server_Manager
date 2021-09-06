@@ -12,7 +12,7 @@ def execute(topic, payload):
     if os.path.exists(payload) == False:
         raise Exception("File does not exist")
 
-    result = subprocess.run(['omxplayer', '-o', 'alsa:hw:0,0', payload])
+    result = subprocess.run(['mpv', payload])
 
     if result.returncode != 0:
 
