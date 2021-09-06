@@ -3,7 +3,7 @@
 import logging
 import importlib
 import json
-#import paho.mqtt.client
+import paho.mqtt.client
 import logging.handlers as handlers
 from pkgutil import iter_modules
 import os
