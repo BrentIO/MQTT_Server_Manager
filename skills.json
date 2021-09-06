@@ -52,5 +52,28 @@
         ],
         "responseTopic": "%controlTopic%/%hostname%/p5AutoUpdate",
         "requiredPackages": []
+    },
+    {
+        "enabled": true,
+        "name": "playSoundFile",
+        "description": "Plays the specified sound file",
+        "requestTopic": [
+            "%controlTopic%/PA/playSoundFile/set"
+        ],
+        "responseTopic": "%controlTopic%/PA/playSoundFile",
+        "requiredPackages": []
+    },
+    {
+        "enabled": true,
+        "name": "announce",
+        "description": "Creates an MP3 output file with the spoken text requested",
+        "requestTopic": [
+            "%controlTopic%/announce/set"
+        ],
+        "responseTopic": "%controlTopic%/announce",
+        "requiredPackages": [
+            "requests",
+            "boto3"
+        ]
     }
 ]
