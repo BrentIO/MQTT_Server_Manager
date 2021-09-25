@@ -79,11 +79,13 @@ def execute(topic, payload):
             file.close()
 
             returnValue['fileLocation'] =  outputFile
+            returnValue['alreadyExists'] = False
             return returnValue
 
         else:
             #The file already exists
             returnValue['fileLocation'] =  outputFile
+            returnValue['alreadyExists'] = True
             return returnValue
 
     except Exception as ex:
