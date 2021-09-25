@@ -3,6 +3,7 @@
 import json
 import os
 import boto3
+import re
 
 def execute(topic, payload):
 
@@ -35,8 +36,17 @@ def execute(topic, payload):
         if "language" not in annunciation:
             annunciation["language"] = "en-US"
 
+        #Create the filename
+        outputFileName = annunciation["name"].lower()
+        outputFileName = outputFileName.replace(" ", "_")
+        outputFileName = re.sub(r'\W+', '', outputFileName)
+        outputFileName = outputFileName + "." + annunciation["outputFormat"].lower()
+
+        if outputFileName == ".mp3":
+            raise Exception("The resulting output filename was empty.")
+
         #Compose the output file
-        outputFile = os.path.join("/etc/P5Software/audio/", (annunciation["name"].lower() + "." + annunciation["outputFormat"].lower()).replace(" ", "_"))
+        outputFile = os.path.join("/etc/P5Software/audio/", outputFileName)
 
         #See if the output file already exists
         if os.path.exists(outputFile) == False:
