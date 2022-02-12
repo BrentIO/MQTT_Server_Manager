@@ -27,7 +27,8 @@ def on_connect(client, userdata, flags, rc):
 
     except Exception as ex:
         logger.error(ex)
-        
+
+
 def on_message(client, userdata, msg):
     #########################################################
     # Handles MQTT Message Receipt
@@ -101,10 +102,12 @@ def setLogLevel(logLevel):
     
     logger.critical("Log level set to " + logLevel.upper())   
 
+
 def publishOnline():
     
     #Set the status online
     mqttClient.publish(replaceMQTTTopicTokens(settings["mqtt"]["clientTopic"] + "/%hostname%/status"), "ONLINE")
+
 
 def setup():
 
